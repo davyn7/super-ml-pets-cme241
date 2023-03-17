@@ -117,7 +117,10 @@ def train_with_masks(ret):
     del model  # delete the old model for sanity checking, because we are going to load model from disk next
 
     # load model
-    trained_model = MaskablePPO.load("./models/" + ret.model_name)
+    if ret.model_type == "DQN":
+        trained_model = DQN.load("./models/" + ret.model_name)
+    else:
+        trained_model = MaskablePPO.load("./models/" + ret.model_name)
 
     log.info("Predicting...")
 
