@@ -34,6 +34,9 @@ def main():
                         help="set which gamma to use for MaskablePPO training.")
     parser.add_argument('--verbose', metavar='--v', type=int, nargs='?', default=1,
                         help="sets the verbose level.")
+    # Add additional arguments for model type
+    parser.add_argument('--model_type', metavar='--mt', type=str, nargs='?', default="MaskablePPO",
+                        help="which model type to use for training.")
     ret = parser.parse_known_args(sys.argv[1:])[0]
 
     # set verbose handler

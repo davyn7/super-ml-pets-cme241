@@ -4,6 +4,7 @@ Methods for performing training of RL models, also support finetuning
 # This is for the project
 
 from sb3_contrib import MaskablePPO
+from stable_baselines3 import DQN
 from sb3_contrib.common.maskable.evaluation import evaluate_policy
 from sb3_contrib.common.maskable.utils import get_action_masks
 from stable_baselines3.common.callbacks import CheckpointCallback, EvalCallback
@@ -61,12 +62,19 @@ def train_with_masks(ret):
             }
 
         log.info("Finetuning...")
-        model = MaskablePPO.load(ret.finetune, custom_objects=custom_objects)
+        if ret.model_type == "DQN":
+            model = DQN.load(ret.finetune, custom_objects=custom_objects)
+        else:
+            model = MaskablePPO.load(ret.finetune, custom_objects=custom_objects)
         model.set_env(env)
     else:
         log.info("Training from scratch...")
-        model = MaskablePPO("MlpPolicy", env, verbose=0, batch_size=ret.batch_size, learning_rate=ret.learning_rate,
-                            gamma=ret.gamma)
+        if ret.model_type == "DQN":
+            model = DQN("MlpPolicy", env, verbose=0, batch_size=ret.batch_size, learning_rate=ret.learning_rate,
+                        gamma=ret.gamma)
+        else:
+            model = MaskablePPO("MlpPolicy", env, verbose=0, batch_size=ret.batch_size, learning_rate=ret.learning_rate,
+                        gamma=ret.gamma)
 
     # train
     log.info("Starting training...")
