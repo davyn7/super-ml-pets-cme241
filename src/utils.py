@@ -6,7 +6,7 @@ import tkinter as tk
 import numpy as np
 import logging as log
 import os
-from sapai_gym.opponent_gen.opponent_generators import biggest_numbers_horizontal_opp_generator
+from sapai_gym.opponent_gen.opponent_generators import biggest_numbers_horizontal_opp_generator, model_opp_generator, random_opp_generator
 
 
 def define_logger(verbose=1):
@@ -109,8 +109,10 @@ def custom_easeOutQuad(n):
     return -n * (n-2)
 
 
-def opponent_generator(num_turns):
+def opponent_generator(num_turns, opp):
     """
     returns teams to fight against in the gym - value set to 25
     """
+    if opp == "model":
+        return model_opp_generator(25)
     return biggest_numbers_horizontal_opp_generator(25)
