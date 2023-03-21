@@ -17,6 +17,7 @@ import os
 import sys
 import logging as log
 from .utils import opponent_generator
+import matplotlib.pyplot as plt
 
 
 def train_with_masks(ret):
@@ -127,6 +128,9 @@ def train_with_masks(ret):
     # predict
     obs = env.reset()
     rewards = []
+    #to record game states like number of wins, losses, draws
+    game_wins = []
+    round_reached = []
     for i in tqdm(range(ret.nb_games), "Games:"):
         # Predict outcome with model
         action_masks = get_action_masks(env)
@@ -134,7 +138,17 @@ def train_with_masks(ret):
 
         obs, reward, done, info = env.step(action)
         if done:
+            game_wins.append(env.player.wins)
+            round_reached.append(env.player.turn)
             obs = env.reset()
         rewards.append(reward)
+    plt.plot(game_wins)
+    plt.show()
+    plt.plot(round_reached)
+    plt.show()
+    print("Maximum number of wins in a game: ", max(game_wins))
+    print("Lateest round reached: ", max(round_reached))
+    plt.plot(rewards)
+    plt.show()
     log.info(" ".join([str(sum(rewards)), str(len(rewards)), str(np.mean(rewards))]))
     env.close()
