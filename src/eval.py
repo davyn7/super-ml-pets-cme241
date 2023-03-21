@@ -9,6 +9,7 @@ from tqdm import tqdm
 import numpy as np
 from collections import deque
 from sb3_contrib import MaskablePPO
+from stable_baselines3 import DQN
 from sb3_contrib.common.maskable.evaluation import evaluate_policy
 from sb3_contrib.common.maskable.utils import get_action_masks
 from sapai_gym import SuperAutoPetsEnv
@@ -17,18 +18,23 @@ from sapai_gym.opponent_gen.opponent_generators import random_opp_generator, big
 
 class Evaluate():
 
-    def __init__(self, best_model_path: str, target_model_path: str, test_episodes: int):
+    def __init__(self, best_model_path: str, target_model_path: str, test_episodes: int, model_type: str):
         self.best_model_path = best_model_path
         self.target_model_path = target_model_path
         self.test_episodes = test_episodes
+        self.model_type = model_type
         self.best_model = None
         self.target_model = None
         self.replay_memory = []
         self.env = SuperAutoPetsEnv(opponent_generator, valid_actions_only=True)
 
     def load_models_and_set_env(self):
-        self.best_model = MaskablePPO.load(self.best_model_path, compile=False)
-        self.target_model = MaskablePPO.load(self.target_model_path, compile=False)
+        if self.model_type == "DQN":
+            self.best_model = DQN.load(self.best_model_path, compile=False)
+            self.target_model = DQN.load(self.target_model_path, compile=False)
+        else:
+            self.best_model = MaskablePPO.load(self.best_model_path, compile=False)
+            self.target_model = MaskablePPO.load(self.target_model_path, compile=False)
 
         self.best_model.set_env(self.env)
         self.target_model.set_env(self.env)
@@ -53,7 +59,6 @@ class Evaluate():
                 new_observation = self.env.get_scaled_state()
                 reward = self.env.score
                 done = self.env.isGameOver()
-                info = None
                 self.replay_memory.append([observation, action, reward, new_observation, done])
 
                 observation = new_observation
@@ -74,12 +79,12 @@ class Evaluate():
                print("stats: ", wins, "/", draws, "/", losses)
 
 
-def run(best_model_path: str, target_model_path: str, test_episodes: int):
+def run(best_model_path: str, target_model_path: str, test_episodes: int, model_type: str)):
     """
     method for evaluating agent in simulated Super Auto Pets environment
     """
     # load models
-    evaluator = Evaluate(best_model_path, target_model_path, 100)
+    evaluator = Evaluate(best_model_path, target_model_path, test_episodes, model_type)
     evaluator.load_models_and_set_env()
     evaluator.battle()
 
