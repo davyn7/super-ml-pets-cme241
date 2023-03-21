@@ -15,10 +15,7 @@ from sapai_gym import SuperAutoPetsEnv
 from sapai_gym.opponent_gen.opponent_generators import random_opp_generator, biggest_numbers_horizontal_opp_generator
 
 
-class Evaluate:
-    """
-    @TODO: Not finished yet!
-    """
+class Evaluate():
 
     def __init__(self, best_model_path: str, target_model_path: str, test_episodes: int):
         self.best_model_path = best_model_path
@@ -26,6 +23,7 @@ class Evaluate:
         self.test_episodes = test_episodes
         self.best_model = None
         self.target_model = None
+        self.replay_memory = []
         self.env = SuperAutoPetsEnv(opponent_generator, valid_actions_only=True)
 
     def load_models_and_set_env(self):
@@ -56,7 +54,7 @@ class Evaluate:
                 reward = self.env.score
                 done = self.env.isGameOver()
                 info = None
-                # replay_memory.append([observation, action, reward, new_observation, done])
+                self.replay_memory.append([observation, action, reward, new_observation, done])
 
                 observation = new_observation
                 total_training_rewards += reward
@@ -68,15 +66,15 @@ class Evaluate:
                     total_training_rewards += 1
                     break
 
-            #data.total_wins += self.env.wins
-            #data.total_losses += self.env.losses
-            #data.total_draws += self.env.draws
+            wins += self.env.wins
+            losses += self.env.losses
+            draws += self.env.draws
 
-            #if episode % verbose_step == 0:
-            #    print("stats: ", data.total_wins, "/", data.total_draws, "/", data.total_losses)
+            if episode % verbose_step == 0:
+               print("stats: ", wins, "/", draws, "/", losses)
 
 
-def apply(best_model_path: str, target_model_path: str, test_episodes: int):
+def run(best_model_path: str, target_model_path: str, test_episodes: int):
     """
     method for evaluating agent in simulated Super Auto Pets environment
     """
@@ -89,4 +87,4 @@ def apply(best_model_path: str, target_model_path: str, test_episodes: int):
 if __name__ == "__main__":
     model_path = "./best_models/model_sap_gym_sb3_280822_finetuned_641057_steps"
     target_path = "./best_models/model_sap_gym_sb3_200822_422718_steps"
-    #apply(model_path, target_path, test_episodes=100)
+    run(model_path, target_path, test_episodes=100)

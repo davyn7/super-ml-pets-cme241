@@ -34,8 +34,12 @@ def main():
                         help="set which gamma to use for MaskablePPO training.")
     parser.add_argument('--verbose', metavar='--v', type=int, nargs='?', default=1,
                         help="sets the verbose level.")
-    # Add additional arguments for model type
+    # Add additional arguments for project
     parser.add_argument('--model_type', metavar='--mt', type=str, nargs='?', default="MaskablePPO",
+                        help="which model type to use for training.")
+    parser.add_argument('--best_model_path', metavar='--mt', type=str, nargs='?', default="models/best_model",
+                        help="which model type to use for training.")
+    parser.add_argument('--target_model_path', metavar='--mt', type=str, nargs='?', default="models/rl_model",
                         help="which model type to use for training.")
     ret = parser.parse_known_args(sys.argv[1:])[0]
 
@@ -59,8 +63,11 @@ def main():
 
         log.info("Running...")
         run(ret)
+    elif ret.task == "eval":
+        from src.eval import run
+        run(ret.best_model_path, ret.target_model_path, ret.nb_games)
     else:
-        raise ValueError("Unknown task specified. Available tasks include {'train', 'deploy'}, but used:", ret.task)
+        raise ValueError("Unknown task specified. Available tasks include {'train', 'deploy', 'eval'}, but used:", ret.task)
 
 
 if __name__ == "__main__":
